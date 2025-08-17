@@ -326,7 +326,7 @@ const App: React.FC = () => {
         </button>
         <h1 className="screen-title text-2xl md:text-3xl text-white text-center flex-1">Select Question Type</h1>
       </div>
-  <div className="question-types-grid grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-2xl mx-auto">
+  <div className="question-types-grid grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto items-center justify-center">
         <button 
           className="type-card all-card border-t-4 border-violet-600 bg-white rounded-xl p-6 text-center shadow hover:scale-105 transition"
           onClick={() => {
@@ -393,17 +393,40 @@ const App: React.FC = () => {
     const renderQuestion = () => {
       switch (currentQuestion.type) {
         case 'mcq':
+          // ...existing code...
           return (
             <div className="mcq-container">
-              <div className="options-grid grid gap-4">
+              {/* ...existing code... */}
+            </div>
+          );
+
+        case 'fillblanks':
+          // ...existing code...
+          return (
+            <div className="fillblanks-container">
+              {/* ...existing code... */}
+            </div>
+          );
+
+        case 'matching':
+          // ...existing code...
+          return (
+            <div className="matching-container">
+              {/* ...existing code... */}
+            </div>
+          );
+
+        case 'keyboard':
+          return (
+            <div className="keyboard-container">
+              <div className="keyboard-options grid gap-4 grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-4">
                 {currentQuestion.options?.map((option, index) => {
                   const isSelected = currentAnswer?.answer === option;
                   const isCorrect = currentAnswer ? checkAnswer(currentQuestion, currentAnswer.answer) : false;
-                  
                   return (
                     <button
                       key={index}
-                      className={`option-button p-4 rounded-lg shadow-md transition-all flex items-center justify-between gap-2 ${isSelected ? 'bg-blue-500 text-white' : 'bg-white text-gray-800'} ${currentAnswer ? (isCorrect ? 'border-2 border-green-500' : 'border-2 border-red-500') : 'border'}`}
+                      className={`keyboard-key p-4 rounded-lg shadow-md transition-all flex items-center justify-center gap-2 text-lg font-semibold ${isSelected ? 'bg-indigo-500 text-white' : 'bg-white text-gray-800'} ${currentAnswer ? (isCorrect ? 'border-2 border-green-500' : 'border-2 border-red-500') : 'border'}`}
                       onClick={() => {
                         if (!currentAnswer) {
                           handleAnswer(option);
@@ -411,7 +434,7 @@ const App: React.FC = () => {
                       }}
                       disabled={!!currentAnswer}
                     >
-                      <span className="option-text flex-1 text-left">{option}</span>
+                      {option}
                       {currentAnswer && isCorrect && <CheckCircle className="option-icon w-5 h-5 text-green-500" />}
                       {currentAnswer && !isCorrect && <XCircle className="option-icon w-5 h-5 text-red-500" />}
                     </button>
@@ -421,107 +444,6 @@ const App: React.FC = () => {
               {currentAnswer && (
                 <div className={`answer-feedback ${currentAnswer.isCorrect ? 'correct' : 'wrong'}`}>
                   {currentAnswer.isCorrect ? '✅ Correct!' : `❌ Correct answer: ${currentQuestion.correctAnswer}`}
-                </div>
-              )}
-            </div>
-          );
-
-        case 'fillblanks':
-          return (
-            <div className="fillblanks-container">
-              <div className="blank-inputs">
-                {currentQuestion.blanks?.map((_, index) => (
-                  <input
-                    key={index}
-                    type="text"
-                    className="blank-input"
-                    placeholder="Type here..."
-                    onBlur={(e) => {
-                      const answers = [e.target.value];
-                      handleAnswer(answers);
-                    }}
-                    disabled={!!currentAnswer}
-                  />
-                ))}
-              </div>
-              {currentAnswer && (
-                <div className={`answer-feedback ${currentAnswer.isCorrect ? 'correct' : 'wrong'}`}>
-                  {currentAnswer.isCorrect ? '✅ Correct!' : `❌ Correct answer: ${currentQuestion.correctAnswer}`}
-                </div>
-              )}
-            </div>
-          );
-
-        case 'matching':
-          return (
-            <div className="matching-container">
-              <p className="matching-instruction">
-                {!currentAnswer ? 'Click on a blue item, then click on its matching white item!' : 'Great job! Here are the correct matches:'}
-              </p>
-              <div className="matching-pairs">
-                <div className="left-column">
-                  {currentQuestion.pairs?.map((pair, index) => {
-                    const isSelected = selectedLeftItem === pair.left;
-                    const isMatched = matchingAnswers[pair.left] !== undefined;
-                    const isCorrect = currentAnswer && matchingAnswers[pair.left] === (currentQuestion.correctAnswer as { [key: string]: string })[pair.left];
-                    
-                    return (
-                      <button
-                        key={index}
-                        className={`match-item left ${isSelected ? 'selected' : ''} ${isMatched ? 'matched' : ''} ${currentAnswer && isCorrect ? 'correct' : currentAnswer && isMatched ? 'wrong' : ''}`}
-                        onClick={() => {
-                          if (!currentAnswer && !isMatched) {
-                            setSelectedLeftItem(pair.left);
-                          }
-                        }}
-                        disabled={!!currentAnswer}
-                      >
-                        {pair.left}
-                        {isSelected && !isMatched && <div className="selection-indicator">👆</div>}
-                        {currentAnswer && isCorrect && <CheckCircle className="match-result-icon correct" />}
-                        {currentAnswer && isMatched && !isCorrect && <XCircle className="match-result-icon wrong" />}
-                      </button>
-                    );
-                  })}
-                </div>
-                <div className="right-column">
-                  {currentQuestion.pairs?.map((pair, index) => {
-                    const isMatched = Object.values(matchingAnswers).includes(pair.right);
-                    const canMatch = selectedLeftItem && !isMatched;
-                    const isCorrectMatch = currentAnswer && Object.entries(matchingAnswers).find(([left, right]) => right === pair.right && (currentQuestion.correctAnswer as { [key: string]: string })[left] === right);
-                    
-                    return (
-                      <button
-                        key={index}
-                        className={`match-item right ${isMatched ? 'matched' : ''} ${canMatch ? 'available' : ''} ${currentAnswer && isCorrectMatch ? 'correct' : currentAnswer && isMatched ? 'wrong' : ''}`}
-                        onClick={() => {
-                          if (!currentAnswer && selectedLeftItem && !isMatched) {
-                            const newAnswers = { ...matchingAnswers, [selectedLeftItem]: pair.right };
-                            setMatchingAnswers(newAnswers);
-                            setSelectedLeftItem(null);
-                            
-                            // Check if all pairs are matched
-                            if (Object.keys(newAnswers).length === currentQuestion.pairs?.length) {
-                              handleAnswer(newAnswers);
-                            }
-                          }
-                        }}
-                        disabled={!!currentAnswer}
-                      >
-                        {pair.right}
-                        {canMatch && (
-                          <div className="match-hint">Click to match!</div>
-                        )}
-                        {currentAnswer && isCorrectMatch && <CheckCircle className="match-result-icon correct" />}
-                        {currentAnswer && isMatched && !isCorrectMatch && <XCircle className="match-result-icon wrong" />}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-              {currentAnswer && (
-                <div className={`answer-feedback ${currentAnswer.isCorrect ? 'correct' : 'wrong'}`}>
-                  {currentAnswer.isCorrect ? '🎉 Perfect! All matches are correct!' : '❌ Some matches are wrong. Try again next time!'}
                 </div>
               )}
             </div>
