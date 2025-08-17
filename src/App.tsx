@@ -336,18 +336,19 @@ const App: React.FC = () => {
       </div>
   <div className="question-types-grid grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto items-center justify-center">
         <button 
-          className="type-card all-card border-t-4 border-violet-600 bg-white rounded-xl p-6 text-center shadow hover:scale-105 transition"
+          className="type-card all-card flex flex-col items-center justify-center border-4 border-fuchsia-600 bg-gradient-to-br from-pink-400 via-purple-400 to-indigo-500 rounded-full shadow-2xl hover:scale-110 transition transform duration-200" style={{ height: '180px', width: '180px' }}
           onClick={() => {
             setSelectedQuestionType('all');
             setCurrentScreen('quiz');
           }}
         >
           <div className="type-icon text-3xl mb-2">📚</div>
-          <h3 className="text-lg font-bold mb-1">All Questions</h3>
-          <p className="text-sm text-gray-600">20 mixed questions</p>
+          <div className="type-icon text-5xl mb-3 drop-shadow-lg">📚</div>
+          <h3 className="text-xl font-extrabold mb-1 text-white drop-shadow">All Questions</h3>
+          {/* removed description for cleaner look */}
         </button>
         <button 
-          className="type-card mcq-card border-t-4 border-green-500 bg-white rounded-xl p-6 text-center shadow hover:scale-105 transition"
+          className="type-card mcq-card border-t-4 border-green-500 bg-white rounded-xl p-6 text-center shadow hover:scale-105 transition" style={{ height: '170px', width: '150px' }}
           onClick={() => {
             setSelectedQuestionType('mcq');
             setCurrentScreen('quiz');
@@ -355,10 +356,10 @@ const App: React.FC = () => {
         >
           <div className="type-icon text-3xl mb-2">✅</div>
           <h3 className="text-lg font-bold mb-1">Multiple Choice</h3>
-          <p className="text-sm text-gray-600">Choose correct answer</p>
+          {/* removed description for cleaner look */}
         </button>
         <button 
-          className="type-card matching-card border-t-4 border-orange-500 bg-white rounded-xl p-6 text-center shadow hover:scale-105 transition"
+          className="type-card matching-card border-t-4 border-orange-500 bg-white rounded-xl p-6 text-center shadow hover:scale-105 transition" style={{ height: '170px', width: '150px' }}
           onClick={() => {
             setSelectedQuestionType('matching');
             setCurrentScreen('quiz');
@@ -366,10 +367,10 @@ const App: React.FC = () => {
         >
           <div className="type-icon text-3xl mb-2">🔗</div>
           <h3 className="text-lg font-bold mb-1">Matching</h3>
-          <p className="text-sm text-gray-600">Match pairs together</p>
+          {/* removed description for cleaner look */}
         </button>
         <button 
-          className="type-card fillblanks-card border-t-4 border-yellow-400 bg-white rounded-xl p-6 text-center shadow hover:scale-105 transition"
+          className="type-card fillblanks-card border-t-4 border-yellow-400 bg-white rounded-xl p-6 text-center shadow hover:scale-105 transition" style={{ height: '170px', width: '150px' }}
           onClick={() => {
             setSelectedQuestionType('fillblanks');
             setCurrentScreen('quiz');
@@ -377,10 +378,10 @@ const App: React.FC = () => {
         >
           <div className="type-icon text-3xl mb-2">✏️</div>
           <h3 className="text-lg font-bold mb-1">Fill Blanks</h3>
-          <p className="text-sm text-gray-600">Complete the sentence</p>
+          {/* removed description for cleaner look */}
         </button>
         <button 
-          className="type-card keyboard-card border-t-4 border-indigo-400 bg-white rounded-xl p-6 text-center shadow hover:scale-105 transition"
+          className="type-card keyboard-card border-t-4 border-indigo-400 bg-white rounded-xl p-6 text-center shadow hover:scale-105 transition" style={{ height: '170px', width: '150px' }}
           onClick={() => {
             setSelectedQuestionType('keyboard');
             setCurrentScreen('quiz');
@@ -388,7 +389,7 @@ const App: React.FC = () => {
         >
           <div className="type-icon text-3xl mb-2">⌨️</div>
           <h3 className="text-lg font-bold mb-1">Keyboard Keys</h3>
-          <p className="text-sm text-gray-600">Click the right key</p>
+          {/* removed description for cleaner look */}
         </button>
       </div>
     </div>
@@ -401,18 +402,75 @@ const App: React.FC = () => {
     const renderQuestion = () => {
       switch (currentQuestion.type) {
         case 'mcq':
-          // ...existing code...
           return (
             <div className="mcq-container">
-              {/* ...existing code... */}
+              <div className="options-grid grid gap-4">
+                {currentQuestion.options?.map((option, index) => {
+                  const isSelected = currentAnswer?.answer === option;
+                  const isCorrect = currentAnswer ? checkAnswer(currentQuestion, currentAnswer.answer) : false;
+                  return (
+                    <button
+                      key={index}
+                      className={`option-button p-4 rounded-lg shadow-md transition-all flex items-center justify-between gap-2 ${isSelected ? 'bg-blue-500 text-white' : 'bg-white text-gray-800'} ${currentAnswer ? (isCorrect ? 'border-2 border-green-500' : 'border-2 border-red-500') : 'border'}`}
+                      onClick={() => {
+                        if (!currentAnswer) {
+                          handleAnswer(option);
+                        }
+                      }}
+                      disabled={!!currentAnswer}
+                    >
+                      <span className="option-text flex-1 text-left">{option}</span>
+                      {currentAnswer && isCorrect && <CheckCircle className="option-icon w-5 h-5 text-green-500" />}
+                      {currentAnswer && !isCorrect && <XCircle className="option-icon w-5 h-5 text-red-500" />}
+                    </button>
+                  );
+                })}
+              </div>
+              {currentAnswer && (
+                <div className={`answer-feedback ${currentAnswer.isCorrect ? 'correct' : 'wrong'}`}>
+                  {currentAnswer.isCorrect ? '✅ Correct!' : `❌ Correct answer: ${currentQuestion.correctAnswer}`}
+                </div>
+              )}
             </div>
           );
 
         case 'fillblanks':
-          // ...existing code...
+          const [blankAnswers, setBlankAnswers] = useState<string[]>(Array(currentQuestion.blanks?.length || 0).fill(''));
+          const handleBlankChange = (value: string, idx: number) => {
+            const updated = [...blankAnswers];
+            updated[idx] = value;
+            setBlankAnswers(updated);
+          };
+          const submitBlanks = () => {
+            if (!currentAnswer) {
+              handleAnswer(blankAnswers);
+            }
+          };
           return (
             <div className="fillblanks-container">
-              {/* ...existing code... */}
+              <div className="blank-inputs flex gap-2 flex-wrap">
+                {currentQuestion.blanks?.map((_, index) => (
+                  <input
+                    key={index}
+                    type="text"
+                    className="blank-input border rounded px-3 py-2 text-lg"
+                    placeholder={`Blank ${index + 1}`}
+                    value={blankAnswers[index]}
+                    onChange={e => handleBlankChange(e.target.value, index)}
+                    disabled={!!currentAnswer}
+                  />
+                ))}
+              </div>
+              {!currentAnswer && (
+                <button className="submit-blanks-btn bg-gradient-to-br from-yellow-400 to-orange-400 text-white rounded-lg px-3 py-1 text-sm font-semibold mt-4 hover:scale-105 transition" onClick={submitBlanks}>
+                  Submit
+                </button>
+              )}
+              {currentAnswer && (
+                <div className={`answer-feedback ${currentAnswer.isCorrect ? 'correct' : 'wrong'} mt-4`}>
+                  {currentAnswer.isCorrect ? '✅ Correct!' : `❌ Correct answer: ${Array.isArray(currentQuestion.correctAnswer) ? currentQuestion.correctAnswer.join(', ') : currentQuestion.correctAnswer}`}
+                </div>
+              )}
             </div>
           );
 
