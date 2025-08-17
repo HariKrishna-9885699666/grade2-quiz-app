@@ -304,7 +304,15 @@ const App: React.FC = () => {
 
   const SubjectScreen = () => (
     <div className="screen-container min-h-screen p-4 md:p-8 bg-gradient-to-br from-indigo-400 to-purple-600">
-      <h1 className="screen-title text-2xl md:text-3xl text-white text-center mb-8">Select Subject</h1>
+      <div className="header flex items-center justify-between mb-8">
+        <button className="home-btn bg-white/20 rounded-xl p-3 text-white hover:bg-white/30 transition" onClick={() => setCurrentScreen('splash')}>
+          <Home size={24} />
+        </button>
+        <h1 className="screen-title text-2xl md:text-3xl text-white text-center flex-1">Select Subject</h1>
+        <button className="user-btn bg-white/20 rounded-xl p-3 text-white hover:bg-white/30 transition ml-2" onClick={() => setShowUserModal(true)}>
+          <User size={24} />
+        </button>
+      </div>
       <div className="subjects-grid grid gap-6 max-w-xs mx-auto">
         <button 
           className="subject-card ict-card bg-gradient-to-br from-blue-300 to-blue-700 text-white rounded-2xl p-8 text-center shadow-lg hover:scale-105 transition"
